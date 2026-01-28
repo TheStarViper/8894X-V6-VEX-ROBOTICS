@@ -23,15 +23,15 @@ struct auton_data{
 
 const auton_data autolist[10] = {
 //  cat |    name                |   function pointer
-    {0  ,"Right 10 long"          ,auton_routes::red_1},
-    {0  ,"Right 2 controls"       ,auton_routes::red_2},
-    {0  ,"Awp Right"              ,auton_routes::red_3},
-    {0  ,"Left Long"              ,auton_routes::red_4},
-    {0  ,"Right 2 Controls"       ,auton_routes::red_5},
-    {1  ,"blue left"              ,auton_routes::blue_1},
-    {1  ,"blue 3"                 ,auton_routes::blue_3},
-    {2  ,"skills auton routine"   ,auton_routes::skills_auton_routine},
-    {3  ,"skills driving routine" ,auton_routes::skills_driving_routine},
+    {0  ,"Right 10 long"          ,autons::red_1},
+    {0  ,"Right 2 controls"       ,autons::red_2},
+    {0  ,"Awp Right"              ,autons::red_3},
+    {0  ,"Left Long"              ,autons::red_4},
+    {0  ,"Right 2 Controls"       ,autons::red_5},
+    {1  ,"blue left"              ,autons::blue_1},
+    {1  ,"blue 3"                 ,autons::blue_3},
+    {2  ,"skills auton routine"   ,autons::skills_auton_routine},
+    {3  ,"skills driving routine" ,autons::skills_driving_routine},
 }; 
 
 

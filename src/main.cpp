@@ -2,30 +2,42 @@
 #include "lemlib/api.hpp" // IWYU pragma: keep
 #include "configuration.hpp"
 #include "graphics/pages.hpp"
+#include "liblvgl/lvgl.h"
+#include "pros/abstract_motor.hpp"
+#include "pros/misc.h"
+#include "pros/adi.hpp"
+#include "pros/misc.hpp"
+#include "pros/rtos.hpp"
+bool debugmode = false; // set to true to enable debug features
 
 void initialize() {
-    //pros::lcd::initialize(); // initialize brain screen
-    chassis.calibrate(); // calibrate sensors
-    controller.rumble("."); // main systems calibrated
+  
+  chassis.calibrate(); // calibrate sensors
+  chassis.setPose(0,0,0);
+  //init_sorter_sensor();
+  controller.rumble("."); // main systems calibrated
+  //init_sorter_sensor();
+  
 
-
+  if (debugmode) {
+    pros::lcd::initialize();
+    pros::delay(500);
+    //pros::Task poseDebug(poseDebugTask, nullptr, "Pose Debug Task");
+    //pros::Task brainAutonButton(brainAutonButtonTask, nullptr, "Brain Auton Button");
+  } else{
     pros::delay(500);
     brain_menu();
     pros::Task lvgl_handler(lvgl_task, NULL, "LVGL Handler");
-
-
-    controller.rumble(".-."); // gui operational
-    pros::delay(20); // update every 20 ms
+  }
+  controller.rumble(".-."); // gui operational
+  pros::delay(20); // update every 20 ms
 }
+
 
 
 void disabled() {}
 
 void competition_initialize() {}
-
-
-ASSET(example_txt);
-
 
 void autonomous() {
 
