@@ -692,6 +692,9 @@ typedef void * lv_obj_user_data_t;
 #  define LV_LIST_DEF_ANIM_TIME  100
 #endif
 
+/*Menu (dependencies: lv_flex)*/
+#define LV_USE_MENU    1
+
 /*Line meter (dependencies: *;)*/
 #define LV_USE_LINEMETER   1
 #if LV_USE_LINEMETER

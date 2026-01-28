@@ -1,7 +1,9 @@
-#include "pages.hpp"
+#include "graphics/pages.hpp"
 #include "liblvgl/lvgl.h"
 #include "api.h"
 #include <vector>
+#include <functional>
+#include <string>
 #include "autons.hpp"
 
 
@@ -75,7 +77,6 @@ void create_sub_section(lv_obj_t * sub_page, short int section_param,lv_obj_t * 
     }
 
 }
-#if LV_USE_MENU && LV_USE_MSGBOX && LV_BUILD_EXAMPLES
 lv_obj_t * root_page;
 
 static lv_obj_t * create_text(lv_obj_t * parent,
@@ -278,4 +279,3 @@ void brain_menu(void)
     lv_obj_send_event(lv_obj_get_child(lv_obj_get_child(lv_menu_get_cur_sidebar_page(menu), 0), 0), LV_EVENT_CLICKED,NULL);
 }
 
-#endif
