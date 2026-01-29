@@ -1,77 +1,113 @@
 #include "api.h"
 #include "lemlib/api.hpp"
+#include "pros/optical.hpp"
+#pragma once
 
+
+
+//controllers
 inline pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
-// motor groups
-inline pros::MotorGroup leftmotors({-5, 4, -3},pros::MotorGearset::blue); // left motor group - ports 3 (reversed), 4, 5 (reversed)
-inline pros::MotorGroup rightmotors({6, -9, 7}, pros::MotorGearset::blue); // right motor group - ports 6, 7, 9 (reversed)
+//motors
+inline pros::MotorGroup left_mg({8, -6, -7}, pros::MotorGearset::blue); 
+inline pros::MotorGroup right_mg({-19, 17, 18}, pros::MotorGearset::blue); // 17,18,19 rev
 
-//sensors
-inline pros::Imu imu(10); //inertial sensor
-
-// tracking wheels
-// horizontal tracking wheel encoder. Rotation sensor, port 20, not reversed
-inline pros::Rotation horizontalEnc(20);
-// vertical tracking wheel encoder. Rotation sensor, port 11, reversed
-inline pros::Rotation verticalEnc(-11);
-// horizontal tracking wheel. 2.75" diameter, 5.75" offset, back of the robot (negative)
-inline lemlib::TrackingWheel horizontal(&horizontalEnc, lemlib::Omniwheel::NEW_275, -5.75);
-// vertical tracking wheel. 2.75" diameter, 2.5" offset, left of the robot (negative)
-inline lemlib::TrackingWheel vertical(&verticalEnc, lemlib::Omniwheel::NEW_275, -2.5);
-
-// drivetrain settings
-inline lemlib::Drivetrain drivetrain(&leftmotors, // left motor group
-                              &rightmotors, // right motor group
-                              10, // 10 inch track width
-                              lemlib::Omniwheel::NEW_4, // using new 4" omnis
-                              360, // drivetrain rpm is 360
-                              2 // horizontal drift is 2. If we had traction wheels, it would have been 8
+inline lemlib::Drivetrain drivetrain(&left_mg, // left motor group
+                              &right_mg, // right motor group
+                              11.375, // 11.375 inch track width
+                              lemlib::Omniwheel::NEW_325, // using new 3.25" omnis
+                              450, // drivetrain rpm is 450
+                              4 // horizontal drift is 4 (for now)
 );
 
-// lateral motion controller
-inline lemlib::ControllerSettings linearController(10, // proportional gain (kP)
-                                            0, // integral gain (kI)
-                                            3, // derivative gain (kD)
-                                            3, // anti windup
-                                            1, // small error range, in inches
-                                            100, // small error range timeout, in milliseconds
-                                            3, // large error range, in inches
-                                            500, // large error range timeout, in milliseconds
-                                            20 // maximum acceleration (slew)
-);
+// 11W main intake
+inline pros::Motor intakeMain(9, pros::v5::MotorGears::blue, pros::v5::MotorUnits::degrees);
+// Body 5.5W (formerly half intake 1)
+inline pros::Motor intakescore(-4, pros::v5::MotorGears::blue, pros::v5::MotorUnits::degrees);
+// Scoring 5.5W (formerly half intake 2)
+inline pros::Motor intakemid(10, pros::v5::MotorGears::blue, pros::v5::MotorUnits::degrees);
 
-// angular motion controller
-inline lemlib::ControllerSettings angularController(2, // proportional gain (kP)
-                                             0, // integral gain (kI)
-                                             10, // derivative gain (kD)
-                                             3, // anti windup
-                                             1, // small error range, in degrees
-                                             100, // small error range timeout, in milliseconds
-                                             3, // large error range, in degrees
-                                             500, // large error range timeout, in milliseconds
-                                             0 // maximum acceleration (slew)
-);
 
-// sensors for odometry
-inline lemlib::OdomSensors sensors(&vertical, // vertical tracking wheel
-                            nullptr, // vertical tracking wheel 2, set to nullptr as we don't have a second one
-                            &horizontal, // horizontal tracking wheel
+
+// --- Keep ONLY the A-button mechanism (downward actuator) ---
+inline pros::adi::Pneumatics pistonload('E', false); // match-load / downward mechanism
+// Wing Mechanism- Button L2
+inline pros::adi::Pneumatics pistonWing('C', false); // wing / downward mechanism
+// Piston odom
+inline pros::adi::Pneumatics pistonodom('F', false); // match-load / downward mechanism
+// High Goal scoring piston
+inline pros::adi::Pneumatics pistonHighGoal('D', false);
+
+// Optical Sensors
+inline pros::Optical sorterOptical(14);
+
+// Inertial Sensor
+inline pros::Imu imu_sensor(15);
+// horizontal tracking wheel rotational sensor
+inline pros::Rotation horizontal_sensor(-16);
+// vertical tracking wheel rotational sensor
+inline pros::Rotation vertical_sensor(-3);
+
+// horizontal tracking wheel
+inline lemlib::TrackingWheel horizontal_tracking_wheel(&horizontal_sensor, lemlib::Omniwheel::NEW_2, -1.28125);
+// vertical tracking wheel
+inline lemlib::TrackingWheel vertical_tracking_wheel(&vertical_sensor, lemlib::Omniwheel::NEW_2,-0.375);
+
+//Odometries
+inline lemlib::OdomSensors sensors(&vertical_tracking_wheel, // Primary vertical tracking wheel 
+                            nullptr, // vertical tracking wheel 2, set to nullptr as we are not using it
+                            &horizontal_tracking_wheel, // horizontal tracking wheel 1
                             nullptr, // horizontal tracking wheel 2, set to nullptr as we don't have a second one
-                            &imu // inertial sensor
+                            &imu_sensor // inertial sensor
 );
 
-// input curve for throttle input during driver control
-inline lemlib::ExpoDriveCurve throttleCurve(3, // joystick deadband out of 127
-                                     10, // minimum output where drivetrain will move out of 127
-                                     1.019 // expo curve gain
+// lateral PID controller
+inline lemlib::ControllerSettings lateral_controller(6.5, // proportional gain (kP)
+                                              0, // integral gain (kI)
+                                              3.2, // derivative gain (kD)
+                                            0, // anti windup
+                                              0.15, // small error range, in inches
+                                              350, // small error range timeout, in milliseconds
+                                              0.5, // large error range, in inches
+                                              500, // large error range timeout, in milliseconds
+                                              10 // maximum acceleration (slew).
 );
 
-// input curve for steer input during driver control
-inline lemlib::ExpoDriveCurve steerCurve(3, // joystick deadband out of 127
-                                  10, // minimum output where drivetrain will move out of 127
-                                  1.019 // expo curve gain
+inline lemlib::ControllerSettings angular_controller(
+    2,    // kP  (down from 1 to tame the first lunge)
+    0,  // kI  (keep – it’s doing the steady-state cleanup)
+    14.4,    // kD  (up from 6.0 to add more braking near the target)
+    0,      // anti-windup
+    1,    // small error range (deg)
+    200,    // small error timeout (ms)
+    5,    // large error range (deg)
+    500,    // large error timeout (ms)
+    0      // slew (limits how fast output can change; was 0)
 );
 
 // create the chassis
-inline lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors, &throttleCurve, &steerCurve);
+inline lemlib::Chassis chassis(drivetrain,                           // drivetrain settings
+                        lateral_controller,     // lateral PID settings
+                        angular_controller,             // angular PID settings
+                        sensors                                      // odometry sensors
+);
+
+
+// // Offsets are measured in robot frame: +X forward, +Y to the left.
+// inline constexpr relocalize::SensorOffset DIST_BACK_OFFSET{-6.0, 0.0};  // behind center
+// inline constexpr relocalize::SensorOffset DIST_LEFT_OFFSET{0.0, 6.0};   // left of center
+// inline constexpr relocalize::SensorOffset DIST_RIGHT_OFFSET{0.0, -6.0}; // right of center
+
+// inline pros::Distance distBack(1);
+// inline pros::Distance distLeft(2);
+// inline pros::Distance distRight(3);
+
+// // Customize which walls each sensor is expected to see for relocalization. someting is a bit off here
+// // Example: back sensor points toward bottom wall (Y_NEG), left toward left wall (X_NEG), right toward right wall (X_POS).
+// inline relocalize::DistanceSensorConfig distanceSensorConfigs[] = {
+//     {&distBack, DIST_BACK_OFFSET, -1.0, 0.0, relocalize::WallAxis::Y_NEG},
+//     {&distLeft, DIST_LEFT_OFFSET, 0.0, -1.0, relocalize::WallAxis::X_NEG},
+//     {&distRight, DIST_RIGHT_OFFSET, 0.0, 1.0, relocalize::WallAxis::X_POS},
+// };
+
+// inline constexpr int DIST_SENSOR_COUNT = sizeof(distanceSensorConfigs) / sizeof(distanceSensorConfigs[0]);

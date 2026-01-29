@@ -1,6 +1,8 @@
 #include "main.h"
 #include "lemlib/api.hpp" // IWYU pragma: keep
 #include "configuration.hpp"
+#include "drivetrain.hpp"
+#include "functions.hpp"
 #include "graphics/pages.hpp"
 #include "liblvgl/lvgl.h"
 #include "pros/abstract_motor.hpp"
@@ -47,9 +49,23 @@ void autonomous() {
 void opcontrol() {
 
     while (true) {
-        int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-        int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
-        chassis.arcade(leftY, rightX);
-        pros::delay(10);
+        // --- Curvatherp drive ---
+        int forward = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+        int turn    = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
+
+        DriveOutput driveOut = calc_curvatherp(forward, turn);
+        left_mg.move(static_cast<int>(driveOut.left));
+        right_mg.move(static_cast<int>(driveOut.right));
+
+        // --- Basic intake controls ---
+        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+            runIntakeStore();
+        } else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_Y)) {
+            runOuttake();
+        } else {
+            stopIntakes();
+        }
+
+        pros::delay(20);
     }
 }
