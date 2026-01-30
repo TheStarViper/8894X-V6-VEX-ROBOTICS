@@ -10,7 +10,7 @@ inline pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
 //motors
 inline pros::MotorGroup left_mg({8, -6, -7}, pros::MotorGearset::blue); 
-inline pros::MotorGroup right_mg({-19, 17, 18}, pros::MotorGearset::blue); // 17,18,19 rev
+inline pros::MotorGroup right_mg({-11, 12, 13}, pros::MotorGearset::blue); // 17,18,19 rev
 
 inline lemlib::Drivetrain drivetrain(&left_mg, // left motor group
                               &right_mg, // right motor group
@@ -23,7 +23,7 @@ inline lemlib::Drivetrain drivetrain(&left_mg, // left motor group
 // 11W main intake
 inline pros::Motor intakeMain(9, pros::v5::MotorGears::blue, pros::v5::MotorUnits::degrees);
 // Body 5.5W (formerly half intake 1)
-inline pros::Motor intakescore(-4, pros::v5::MotorGears::blue, pros::v5::MotorUnits::degrees);
+inline pros::Motor intakescore(-15, pros::v5::MotorGears::blue, pros::v5::MotorUnits::degrees);
 // Scoring 5.5W (formerly half intake 2)
 inline pros::Motor intakemid(10, pros::v5::MotorGears::blue, pros::v5::MotorUnits::degrees);
 
